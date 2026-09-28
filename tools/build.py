@@ -26,6 +26,7 @@ def const(name):
     return mm.group(1)
 
 LOGO_UK = const("LOGO_UK")
+SEAL_UK = const("SEAL_UK")
 
 PRINT_HTML = u'''<!doctype html>
 <html lang="ja">
@@ -75,6 +76,7 @@ html,body{margin:0;padding:0;background:#fff}
 (function(){
 "use strict";
 const LOGO_UK = "%(logo)s";
+const SEAL_UK = "%(seal)s";
 const $ = id => document.getElementById(id);
 
 function fromB64Url(s){
@@ -108,6 +110,7 @@ function clean(node, out){
       else if(a.name === "src" && c.tagName === "IMG"){
         const v = a.value;
         if(v === "@builtin-logo") el.src = LOGO_UK;
+        else if(v === "@builtin-seal") el.src = SEAL_UK;
         else if(/^data:image\\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+\\/=]+$/.test(v)) el.src = v;
       }
     });
@@ -152,7 +155,7 @@ if(document.readyState === "complete") start(); else window.addEventListener("lo
 </html>
 '''
 
-print_html = PRINT_HTML % {"css": main_css, "logo": LOGO_UK}
+print_html = PRINT_HTML % {"css": main_css, "logo": LOGO_UK, "seal": SEAL_UK}
 io.open(os.path.join(ROOT, "print.html"), "w", encoding="utf-8").write(print_html)
 print("print.html:", len(print_html.encode("utf-8")), "bytes")
 

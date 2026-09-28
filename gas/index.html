@@ -615,13 +615,14 @@ const DEFAULT_DOCS = [
 ];
 
 const DEFAULT_SENDERS = [
+  /* 公開ページにも載るので、初期値は会社の代表番号だけ。担当者の直通番号は各自で登録するか、設定ファイルの読み込みで入れる */
   {id:"uk", name:"株式会社UKCorporation", zip:"105-0004",
-   addr:"東京都港区新橋1-9-5 KDX新橋駅前ビル9F", tel:"080-7495-7944",
-   staff:[{name:"槌谷 典久", tel:"080-7495-7944"}],
+   addr:"東京都港区新橋1-9-5 KDX新橋駅前ビル9F", tel:"03-6911-0577",
+   staff:[{name:"槌谷 典久", tel:""}],
    logo:LOGO_UK, logoW:"42", accent:"#D1352F"},
   {id:"akiya", name:"株式会社空き家活用研究所", zip:"105-0004",
-   addr:"東京都港区新橋1-9-5 KDX新橋駅前ビル9F", tel:"080-7495-7944",
-   staff:[{name:"槌谷 典久", tel:"080-7495-7944"}],
+   addr:"東京都港区新橋1-9-5 KDX新橋駅前ビル9F", tel:"",
+   staff:[{name:"槌谷 典久", tel:""}],
    logo:null, logoW:"42", accent:"#2E5744"}
 ];
 

@@ -415,7 +415,11 @@ body.mode-letter .env{display:none}
               <select id="dateFmt"><option value="wareki">令和8年9月14日</option><option value="seireki">2026年9月14日</option></select>
             </label>
           </div>
-          <p class="hint">起動時に今日の日付が自動で入ります。</p>
+          <div class="row tight" style="align-items:center">
+            <button class="btn mini" id="dateBlank" type="button">空白にする（手書き用）</button>
+            <button class="btn mini" id="dateToday" type="button">今日にする</button>
+          </div>
+          <p class="hint">起動時に今日の日付が自動で入ります。空白にすると「　　年　　月　　日」と印字されます。</p>
           <label class="f"><span>件名</span>
             <input type="text" id="subject" list="subjectList">
             <datalist id="subjectList">
@@ -1118,7 +1122,8 @@ function render(){
   }
   $("pRule").hidden = !S.letterhead;
 
-  $("pDate").textContent = fmtDate(S.date, S.dateFmt);
+  $("pDate").textContent = fmtDate(S.date, S.dateFmt) ||
+    (S.dateFmt === "seireki" ? "　　　　年　　月　　日" : "令和　　年　　月　　日");
 
   /* 宛先 */
   const to = $("pTo"); to.innerHTML = "";
@@ -1519,6 +1524,8 @@ function boot(){
   };
   ["toCompany","toDept","toTitle","toName","honor","toZip","toAddr","subject","note"].forEach(k=>bind(k, k));
   bind("dateInput", "date");
+  $("dateBlank").onclick = ()=>{ S.date = ""; $("dateInput").value = ""; render(); saveDraft(); };
+  $("dateToday").onclick = ()=>{ S.date = todayISO(); $("dateInput").value = S.date; render(); saveDraft(); };
   $("dateFmt").addEventListener("change", ()=>{ S.dateFmt = $("dateFmt").value; render(); saveDraft(); });
   $("bodyText").addEventListener("input", ()=>{
     S.body = $("bodyText").value; S.presetId = "free"; $("preset").value = "free"; render(); saveDraft();

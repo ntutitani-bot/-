@@ -1696,7 +1696,23 @@ function boot(){
     if(e.key === "soufujo:print:ack"){ printAcked = true; note("印刷用のタブが開きました"); }
   });
   $("printBtn").addEventListener("click", e=>{
-    if(!INVIEWER){ e.preventDefault(); printHere(); afterPrintStart(); return; }
+    if(!INVIEWER){
+      e.preventDefault();
+      /* ブラウザが印刷を止めている場合（会社の設定など）に備え、印刷画面が開かなければ「PDFで保存」を出す */
+      let opened = false;
+      const mark = ()=>{ opened = true; };
+      window.addEventListener("beforeprint", mark, {once:true});
+      printHere(); afterPrintStart();
+      setTimeout(()=>{
+        window.removeEventListener("beforeprint", mark);
+        if(opened) return;
+        $("pdfBtn").hidden = false;
+        note("印刷画面が開かない場合は「PDFで保存」を押してください");
+        const el = $("saveState"); el.textContent = "印刷画面が開かない場合は「PDFで保存」を押してください";
+        setTimeout(()=>{ el.textContent = "自動保存"; }, 10000);
+      }, 1200);
+      return;
+    }
     /* 共有リンク版：リンクとして print.html を新しいタブで開く（クリックはそのまま通す） */
     preparePrintLink();
     printAcked = false;

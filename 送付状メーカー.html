@@ -1801,6 +1801,16 @@ function boot(){
   $("zoomIn").onclick  = ()=>{ zoom = Math.min(1.6, zoom + 0.1); applyZoom(); };
   $("zoomOut").onclick = ()=>{ zoom = Math.max(0.3, zoom - 0.1); applyZoom(); };
   window.addEventListener("resize", fitZoom);
+  /* 共有リンク版（claude.ai）では、Ctrl+P（⌘P）でブラウザの印刷を使うと画面内の枠の高さで切れてしまうため、
+     印刷専用のタブを開く「印刷」ボタンと同じ動きにする */
+  if(INVIEWER){
+    document.addEventListener("keydown", e=>{
+      if((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && String(e.key).toLowerCase() === "p"){
+        e.preventDefault(); e.stopPropagation();
+        $("printBtn").click();
+      }
+    }, true);
+  }
   /* Ctrl+P でも、印刷の上部に出る題名を「送付状_宛先_日付」にする */
   let titleKeep = null;
   window.addEventListener("beforeprint", ()=>{ if(titleKeep === null){ titleKeep = document.title; try{ document.title = docTitle(); }catch(e){} } });

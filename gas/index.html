@@ -297,7 +297,8 @@ a.btn{text-decoration:none; display:inline-flex; align-items:center}
   .desk{padding:0; display:block; overflow:visible}
   .sheet,.env{box-shadow:none; zoom:1 !important; margin:0}
   /* 余白の設定が「既定」などでも右が切れないよう、用紙の幅に合わせて収める */
-  .sheet{width:100% !important; max-width:210mm; min-height:100vh !important}
+  .sheet{width:100% !important; max-width:210mm; min-height:calc(100vh - 6mm) !important; overflow:hidden; break-after:avoid; page-break-after:avoid}
+  html,body{height:auto !important; overflow:visible !important}
   body.mode-letter .env{display:none !important}
   body.mode-env .sheet{display:none !important}
 }

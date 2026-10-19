@@ -296,6 +296,8 @@ a.btn{text-decoration:none; display:inline-flex; align-items:center}
   .app{display:block; height:auto; overflow:visible}
   .desk{padding:0; display:block; overflow:visible}
   .sheet,.env{box-shadow:none; zoom:1 !important; margin:0}
+  /* 余白の設定が「既定」などでも右が切れないよう、用紙の幅に合わせて収める */
+  .sheet{width:100% !important; max-width:210mm; min-height:100vh !important}
   body.mode-letter .env{display:none !important}
   body.mode-env .sheet{display:none !important}
 }
@@ -1798,6 +1800,10 @@ function boot(){
   $("zoomIn").onclick  = ()=>{ zoom = Math.min(1.6, zoom + 0.1); applyZoom(); };
   $("zoomOut").onclick = ()=>{ zoom = Math.max(0.3, zoom - 0.1); applyZoom(); };
   window.addEventListener("resize", fitZoom);
+  /* Ctrl+P でも、印刷の上部に出る題名を「送付状_宛先_日付」にする */
+  let titleKeep = null;
+  window.addEventListener("beforeprint", ()=>{ if(titleKeep === null){ titleKeep = document.title; try{ document.title = docTitle(); }catch(e){} } });
+  window.addEventListener("afterprint", ()=>{ if(titleKeep !== null){ document.title = titleKeep; titleKeep = null; } });
 
   if(INGAS) initGas(); else initShared();
 }

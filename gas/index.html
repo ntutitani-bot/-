@@ -274,15 +274,18 @@ a.btn{text-decoration:none; display:inline-flex; align-items:center}
 }
 .env.n3{width:235mm; height:120mm}
 .env.k2{width:332mm; height:240mm}
-.env .e-to{position:absolute; left:14%; top:28%; width:70%; line-height:1.9}
-.env .e-to .zip{letter-spacing:.35em; font-size:11pt}
-.env .e-to .ad{font-size:12pt; margin-top:3mm}
-.env .e-to .nm{font-size:17pt; margin-top:6mm; letter-spacing:.08em; white-space:pre-line}
-.env .e-from{position:absolute; left:8%; bottom:8%; font-size:9.5pt; line-height:1.7; white-space:pre-line}
+/* 宛名の文字の大きさは fitEnv() が封筒の大きさに合わせて決める（下の値は計算前の初期値） */
+.env .e-to{position:absolute; left:13%; right:8%; top:17%; line-height:1.7}
+.env.k2 .e-to{top:22%}
+.env .e-to .zip{letter-spacing:.3em; font-size:12pt}
+.env .e-to .ad{font-size:13pt; margin-top:.35em}
+.env .e-to .nm{font-size:21pt; margin-top:.5em; letter-spacing:.08em; white-space:pre}
+.env .e-to .nm div{font-size:.8em}
+.env .e-to .nm div.big{font-size:1em}
+.env .e-from{position:absolute; left:8%; bottom:8%; font-size:9pt; line-height:1.7; white-space:pre-line}
 .env .e-from img{display:block; height:7mm; width:auto; margin-bottom:1.6mm}
-.env.k2 .e-to .nm{font-size:22pt}
-.env.k2 .e-from{font-size:11pt}
-.env.k2 .e-from img{height:9mm}
+.env.k2 .e-from{font-size:12pt}
+.env.k2 .e-from img{height:10mm}
 
 @media (max-width:900px){
   .app{grid-template-columns:1fr}
@@ -1213,7 +1216,15 @@ function render(){
   env.className = "env " + S.envSize;
   $("eZip").textContent  = S.toZip ? "〒" + S.toZip : "";
   $("eAddr").textContent = S.toAddr || "";
-  $("eName").textContent = lines.map(l=> l.t + (l.suffix ? "　" + l.suffix : "")).join("\n");
+  /* 氏名をいちばん大きく、会社名・部署は少し小さく（氏名がないときは会社名を大きく） */
+  const eName = $("eName"); eName.innerHTML = "";
+  const bigAt = lines.some(l=> l.big) ? lines.findIndex(l=> l.big) : 0;
+  lines.forEach((l, i)=>{
+    const d = document.createElement("div");
+    if(i === bigAt) d.className = "big";
+    d.textContent = l.t + (l.suffix ? "　" + l.suffix : "");
+    eName.appendChild(d);
+  });
   const ef = $("eFrom"); ef.innerHTML = "";
   if(S.letterhead && s.logo){
     const img = document.createElement("img"); img.src = s.logo; img.alt = "";
@@ -1229,7 +1240,33 @@ function render(){
     ? (S.envSize === "k2" ? "@page{size:332mm 240mm;margin:0}" : "@page{size:235mm 120mm;margin:0}")
     : "@page{size:A4;margin:0}";
   $("envRow").hidden = S.mode !== "env";
+  fitEnv();
   updatePrintLink();
+}
+
+/* 封筒の宛名を、封筒の大きさに合わせてできるだけ大きくする。
+   氏名・会社名が1行に収まらないときや、差出人に重なるときは全体を同じ割合で小さくする。 */
+function fitEnv(){
+  if(S.mode !== "env") return;
+  const env = $("env"), to = env.querySelector(".e-to"), from = $("eFrom");
+  const nm = $("eName"), ad = $("eAddr"), zp = $("eZip");
+  const k2 = S.envSize === "k2";
+  const base = k2 ? 34 : 22;                   /* 氏名の大きさ（pt） */
+  const pxPerMm = env.getBoundingClientRect().width / (k2 ? 332 : 235);
+  const set = r => {
+    nm.style.fontSize = (base * r).toFixed(2) + "pt";
+    ad.style.fontSize = (base * r * 0.62).toFixed(2) + "pt";
+    zp.style.fontSize = (base * r * 0.58).toFixed(2) + "pt";
+  };
+  const fits = () => {
+    if(nm.scrollWidth > to.clientWidth + 1) return false;
+    if(!from.textContent.trim() && !from.querySelector("img")) return true;
+    return to.getBoundingClientRect().bottom <= from.getBoundingClientRect().top - 4 * pxPerMm;
+  };
+  for(let r = 1; r >= 0.45; r -= 0.03){
+    set(r);
+    if(fits()) return;
+  }
 }
 
 /* ---------- アドレス帳・履歴 ---------- */
@@ -1518,6 +1555,7 @@ function boot(){
   renderLists();
   render();
   fitZoom();
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitEnv);
 
   const bind = (id, key)=>{
     const el = $(id);

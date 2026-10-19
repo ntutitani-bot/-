@@ -274,15 +274,18 @@ a.btn{text-decoration:none; display:inline-flex; align-items:center}
 }
 .env.n3{width:235mm; height:120mm}
 .env.k2{width:332mm; height:240mm}
-.env .e-to{position:absolute; left:14%; top:28%; width:70%; line-height:1.9}
-.env .e-to .zip{letter-spacing:.35em; font-size:11pt}
-.env .e-to .ad{font-size:12pt; margin-top:3mm}
-.env .e-to .nm{font-size:17pt; margin-top:6mm; letter-spacing:.08em; white-space:pre-line}
-.env .e-from{position:absolute; left:8%; bottom:8%; font-size:9.5pt; line-height:1.7; white-space:pre-line}
+/* 宛名の文字の大きさは fitEnv() が封筒の大きさに合わせて決める（下の値は計算前の初期値） */
+.env .e-to{position:absolute; left:13%; right:8%; top:17%; line-height:1.7}
+.env.k2 .e-to{top:22%}
+.env .e-to .zip{letter-spacing:.3em; font-size:12pt}
+.env .e-to .ad{font-size:13pt; margin-top:.35em}
+.env .e-to .nm{font-size:21pt; margin-top:.5em; letter-spacing:.08em; white-space:pre}
+.env .e-to .nm div{font-size:.8em}
+.env .e-to .nm div.big{font-size:1em}
+.env .e-from{position:absolute; left:8%; bottom:8%; font-size:9pt; line-height:1.7; white-space:pre-line}
 .env .e-from img{display:block; height:7mm; width:auto; margin-bottom:1.6mm}
-.env.k2 .e-to .nm{font-size:22pt}
-.env.k2 .e-from{font-size:11pt}
-.env.k2 .e-from img{height:9mm}
+.env.k2 .e-from{font-size:12pt}
+.env.k2 .e-from img{height:10mm}
 
 @media (max-width:900px){
   .app{grid-template-columns:1fr}

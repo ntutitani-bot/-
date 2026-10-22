@@ -55,7 +55,7 @@ function fetchApp_() {
     var res = UrlFetchApp.fetch(APP_SOURCE_URL, { muteHttpExceptions: true, followRedirects: true });
     if (res.getResponseCode() !== 200) return null;
     var html = res.getContentText("UTF-8");
-    return (html && html.indexOf("送付状メーカー") >= 0 && html.indexOf("</html>") > 0) ? html : null;
+    return (html && html.indexOf("送付状") >= 0 && html.indexOf("</html>") > 0) ? html : null;
   } catch (e) {
     return null;
   }

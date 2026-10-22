@@ -33,7 +33,7 @@ PRINT_HTML = u'''<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>送付状メーカー 印刷</title>
+<title>送付状 印刷</title>
 <style>
 %(css)s
 /* ============================================================
@@ -71,7 +71,7 @@ html,body{margin:0;padding:0;background:#fff}
   <button type="button" class="x" id="pcls">閉じる</button>
 </div>
 <main id="paper"></main>
-<p id="empty" hidden>印刷するものがありません。送付状メーカーの「印刷」ボタンから開いてください。</p>
+<p id="empty" hidden>印刷するものがありません。送付状の画面の「印刷」ボタンから開いてください。</p>
 <script>
 (function(){
 "use strict";

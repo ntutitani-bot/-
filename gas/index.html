@@ -256,7 +256,8 @@ a.btn{text-decoration:none; display:inline-flex; align-items:center}
 .sheet tbody td.nm{text-align:left}
 .sheet tbody td .idx{color:#6b615d; margin-right:1.5mm}
 
-.due{margin:4mm auto 0; width:80%; font-size:10.5pt; font-weight:700; letter-spacing:.04em}
+.due{margin:6mm 0 0; font-size:9.5pt; line-height:1.85}
+.due b{font-weight:700}
 .note{margin:6mm 0 0; white-space:pre-line; font-size:9.5pt; line-height:1.85}
 .ijo{text-align:right; margin-top:auto; padding-top:9mm; letter-spacing:.34em; font-weight:700}
 .lf{
@@ -1219,9 +1220,17 @@ function render(){
     tr.append(td1, td2); tb.appendChild(tr);
   });
 
+  /* 返送期限：「恐れ入りますが、令和8年12月10日（木）までにご返送くださいますようお願い申し上げます。」
+     備考にすでに期限の日付入りの文があるときは重ねて出さない */
   const dueTxt = fmtDue(S.due, S.dateFmt);
-  $("pDue").textContent = dueTxt ? "ご返送期限：" + dueTxt : "";
-  $("pDue").hidden = !dueTxt;
+  const dueEl = $("pDue"); dueEl.innerHTML = "";
+  const dm = /^(\d{4})-(\d{2})-(\d{2})$/.exec(S.due || "");
+  const inNote = dm && String(S.note || "").indexOf((+dm[2]) + "月" + (+dm[3]) + "日までに") >= 0;
+  if(dueTxt && !inNote){
+    const b = document.createElement("b"); b.textContent = dueTxt;
+    dueEl.append("恐れ入りますが、", b, "までにご返送くださいますようお願い申し上げます。");
+  }
+  dueEl.hidden = !dueTxt || inNote;
   $("pNote").textContent = S.note || "";
   $("pNote").hidden = !S.note;
 

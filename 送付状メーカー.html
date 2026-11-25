@@ -256,6 +256,7 @@ a.btn{text-decoration:none; display:inline-flex; align-items:center}
 .sheet tbody td.nm{text-align:left}
 .sheet tbody td .idx{color:#6b615d; margin-right:1.5mm}
 
+.due{margin:4mm auto 0; width:80%; font-size:10.5pt; font-weight:700; letter-spacing:.04em}
 .note{margin:6mm 0 0; white-space:pre-line; font-size:9.5pt; line-height:1.85}
 .ijo{text-align:right; margin-top:auto; padding-top:9mm; letter-spacing:.34em; font-weight:700}
 .lf{
@@ -455,6 +456,10 @@ body.mode-letter .env{display:none}
             <button class="btn mini" id="addItem" type="button">＋自由入力で追加</button></div>
           <div class="items" id="items"></div>
           <datalist id="docNames"></datalist>
+          <div class="row">
+            <label class="f" style="flex:1 1 150px"><span>返送期限（任意）</span><input type="date" id="dueInput"></label>
+            <div style="flex:0 0 auto; align-self:flex-end"><button class="btn mini" id="dueClear" type="button">期限なし</button></div>
+          </div>
           <label class="f"><span>備考（記の下に入ります・任意）</span>
             <textarea id="note" rows="2" placeholder="ご署名・ご捺印のうえ、同封の返信用封筒にてご返送ください。"></textarea>
           </label>
@@ -562,6 +567,7 @@ body.mode-letter .env{display:none}
         <thead><tr><th style="width:74%">送付書類名</th><th>部数</th></tr></thead>
         <tbody id="pItems"></tbody>
       </table>
+      <p class="due" id="pDue" hidden></p>
       <p class="note" id="pNote"></p>
 
       <div class="ijo">以上</div>
@@ -662,6 +668,20 @@ function fmtDate(iso, mode){
   return y+"年"+mo+"月"+da+"日";
 }
 
+/* 返送期限：「令和8年12月10日（水）」 */
+function fmtDue(iso, mode){
+  const t = fmtDate(iso, mode);
+  if(!t) return "";
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  const w = "日月火水木金土"[new Date(+m[1], +m[2]-1, +m[3]).getDay()];
+  return t + "（" + w + "）";
+}
+/* 備考の「　　月　　日までに」を返送期限の日付に置き換える */
+function fillDueInNote(text){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(S.due || "");
+  if(!m) return text;
+  return String(text || "").replace("　　月　　日までに", (+m[2]) + "月" + (+m[3]) + "日までに");
+}
 function freshDraft(){
   return {
     senderId:"uk", staff:"",
@@ -669,7 +689,7 @@ function freshDraft(){
     toCompany:"", toDept:"", toTitle:"", toName:"", honor:"様", toZip:"", toAddr:"",
     subject:"書類送付のご案内",
     presetId:"std", body:PRESETS[0].text,
-    items:[], note:"",
+    items:[], note:"", due:"",
     seal:true, sealSize:"19", sealInk:"0.8",
     letterhead:true, footer:true,
     font:"mincho", size:"10.5", mode:"letter", envSize:"n3"
@@ -1191,6 +1211,9 @@ function render(){
     tr.append(td1, td2); tb.appendChild(tr);
   });
 
+  const dueTxt = fmtDue(S.due, S.dateFmt);
+  $("pDue").textContent = dueTxt ? "ご返送期限：" + dueTxt : "";
+  $("pDue").hidden = !dueTxt;
   $("pNote").textContent = S.note || "";
   $("pNote").hidden = !S.note;
 
@@ -1294,6 +1317,7 @@ function fillForm(){
   $("toName").value = S.toName; $("honor").value = S.honor;
   $("toZip").value = S.toZip; $("toAddr").value = S.toAddr;
   $("dateInput").value = S.date; $("dateFmt").value = S.dateFmt;
+  $("dueInput").value = S.due || "";
   $("subject").value = S.subject; $("preset").value = S.presetId; $("bodyText").value = S.body;
   $("note").value = S.note; $("fontSel").value = S.font; $("sizeSel").value = S.size;
   $("sealSize").value = S.sealSize; $("sealInk").value = S.sealInk;
@@ -1569,8 +1593,17 @@ function boot(){
     renderChecks(); shareLater("docNames", "docNames.set", ()=>({docNames:D.docNames.slice()}));
   });
   document.querySelectorAll("[data-note]").forEach(b=>{
-    b.onclick = ()=>{ S.note = b.dataset.note; $("note").value = S.note; render(); saveDraft(); };
+    b.onclick = ()=>{ S.note = fillDueInNote(b.dataset.note); $("note").value = S.note; render(); saveDraft(); };
   });
+  const onDue = ()=>{
+    S.due = $("dueInput").value || "";
+    const n = fillDueInNote(S.note);
+    if(n !== S.note){ S.note = n; $("note").value = n; }
+    render(); saveDraft();
+  };
+  $("dueInput").addEventListener("input", onDue);
+  $("dueInput").addEventListener("change", onDue);
+  $("dueClear").onclick = ()=>{ $("dueInput").value = ""; onDue(); };
 
   $("toggleSender").onclick = ()=>{
     const box = $("senderEdit"); box.hidden = !box.hidden;
